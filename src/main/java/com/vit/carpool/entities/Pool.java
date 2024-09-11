@@ -2,6 +2,8 @@ package com.vit.carpool.entities;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 
 public class Pool {
     private String name;
@@ -10,7 +12,12 @@ public class Pool {
     private LocalDate date;
     private LocalTime time;
     private long id;
+    @ManyToOne
+    @JoinColumn(name = "creatorID", referencedColumnName = "registrationNumber")
+    private User creator;
 
+    // Getters and Setters
+    // other fields
 
     public Pool() {}
 
@@ -21,6 +28,16 @@ public class Pool {
         this.place = place;
         this.date = date;
         this.time = time;
+    }
+
+    public Pool(long id, String name, String block, String place, LocalDate date, LocalTime time) {
+    }
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
     }
 
     public String getName() {
