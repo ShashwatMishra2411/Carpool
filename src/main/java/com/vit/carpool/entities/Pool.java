@@ -20,7 +20,7 @@ public class Pool {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<User> users; // List of users participating in the pool
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creatorID", referencedColumnName = "registrationNumber")
     private User creator; // Creator of the pool (foreign key)
 
@@ -32,7 +32,7 @@ public class Pool {
     }
 
     public Pool(String source, String destination, LocalDate date, LocalTime time,
-                User creator, int maxUsers) {
+            User creator, int maxUsers) {
         this.source = source;
         this.destination = destination;
         this.date = date;
