@@ -33,8 +33,8 @@ public class PoolService {
     // Method to create a new pool
     @Transactional
     public int createPool(Pool pool) {
-        String query = "INSERT INTO pool (poolID, source, destination, date, time, creatorID, limit, fill) " +
-                "VALUES (:poolID, :source, :destination, :date, :time, :creatorID, :limit, :fill)";
+        String query = "INSERT INTO pool (poolID, source, destination, date, time, creatorID, max_users, fill) " +
+                "VALUES (:poolID, :source, :destination, :date, :time, :creatorID, :max_users, :fill)";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("poolID", pool.getPoolID());
         params.addValue("source", pool.getSource());
@@ -42,7 +42,7 @@ public class PoolService {
         params.addValue("date", pool.getDate());
         params.addValue("time", pool.getTime());
         params.addValue("creatorID", pool.getCreatorID().getRegistrationNumber()); // Foreign key reference to User
-        params.addValue("limit", pool.getLimit());
+        params.addValue("max_users", pool.getmax_users());
         params.addValue("fill", pool.getFill());
         return namedParameterJdbcTemplate.update(query, params);
     }
@@ -51,14 +51,14 @@ public class PoolService {
     @Transactional
     public int updatePool(long poolID, Pool pool) {
         String query = "UPDATE pool SET source = :source, destination = :destination, date = :date, time = :time, " +
-                "creatorID = :creatorID, limit = :limit, fill = :fill WHERE poolID = :poolID";
+                "creatorID = :creatorID, max_users = :max_users, fill = :fill WHERE poolID = :poolID";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("source", pool.getSource());
         params.addValue("destination", pool.getDestination());
         params.addValue("date", pool.getDate());
         params.addValue("time", pool.getTime());
         params.addValue("creatorID", pool.getCreatorID().getRegistrationNumber()); // Foreign key reference to User
-        params.addValue("limit", pool.getLimit());
+        params.addValue("max_users", pool.getmax_users());
         params.addValue("fill", pool.getFill());
         params.addValue("poolID", poolID);
         return namedParameterJdbcTemplate.update(query, params);
