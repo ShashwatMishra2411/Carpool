@@ -2,61 +2,74 @@ package com.vit.carpool.services;
 
 import com.vit.carpool.entities.Pool;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
 public class PoolService {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     // Method to retrieve all pool entries
     public List<Pool> getAllPools() {
         String query = "SELECT * FROM pool";
-        return jdbcTemplate.query(query, this::mapRowToPool);
+        return namedParameterJdbcTemplate.query(query, new BeanPropertyRowMapper<>(Pool.class));
     }
 
     // Method to find a pool by id
-    public Pool getPoolById(long id) {
-        String query = "SELECT * FROM pool WHERE id = ?";
-        return jdbcTemplate.queryForObject(query, new Object[]{id}, this::mapRowToPool);
+    public Pool getPoolById(long poolID) {
+        String query = "SELECT * FROM pool WHERE poolID = :poolID";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("poolID", poolID);
+        return namedParameterJdbcTemplate.queryForObject(query, params, new BeanPropertyRowMapper<>(Pool.class));
     }
 
     // Method to create a new pool
+    @Transactional
     public int createPool(Pool pool) {
-        String query = "INSERT INTO pool (id, name, block, place, date, time) VALUES (?, ?, ?, ?, ?, ?)";
-        return jdbcTemplate.update(query, pool.getID(), pool.getName(), pool.getBlock(), pool.getPlace(), pool.getDate(), pool.getTime());
+        String query = "INSERT INTO pool (poolID, source, destination, date, time, creatorID, limit, fill) " +
+                "VALUES (:poolID, :source, :destination, :date, :time, :creatorID, :limit, :fill)";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("poolID", pool.getPoolID());
+        params.addValue("source", pool.getSource());
+        params.addValue("destination", pool.getDestination());
+        params.addValue("date", pool.getDate());
+        params.addValue("time", pool.getTime());
+        params.addValue("creatorID", pool.getCreatorID().getRegistrationNumber()); // Foreign key reference to User
+        params.addValue("limit", pool.getLimit());
+        params.addValue("fill", pool.getFill());
+        return namedParameterJdbcTemplate.update(query, params);
     }
 
     // Method to update a pool
-    public int updatePool(long id, Pool pool) {
-        String query = "UPDATE pool SET name = ?, block = ?, place = ?, date = ?, time = ? WHERE id = ?";
-        return jdbcTemplate.update(query, pool.getName(), pool.getBlock(), pool.getPlace(), pool.getDate(), pool.getTime(), id);
+    @Transactional
+    public int updatePool(long poolID, Pool pool) {
+        String query = "UPDATE pool SET source = :source, destination = :destination, date = :date, time = :time, " +
+                "creatorID = :creatorID, limit = :limit, fill = :fill WHERE poolID = :poolID";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("source", pool.getSource());
+        params.addValue("destination", pool.getDestination());
+        params.addValue("date", pool.getDate());
+        params.addValue("time", pool.getTime());
+        params.addValue("creatorID", pool.getCreatorID().getRegistrationNumber()); // Foreign key reference to User
+        params.addValue("limit", pool.getLimit());
+        params.addValue("fill", pool.getFill());
+        params.addValue("poolID", poolID);
+        return namedParameterJdbcTemplate.update(query, params);
     }
 
     // Method to delete a pool
-    public int deletePool(long id) {
-        String query = "DELETE FROM pool WHERE id = ?";
-        return jdbcTemplate.update(query, id);
-    }
-
-    // Method to map a result set row to a Pool object
-    private Pool mapRowToPool(ResultSet rs, int rowNum) throws SQLException {
-        Pool pool = new Pool();
-        pool.setName(rs.getString("name"));
-        pool.setBlock(rs.getString("block"));
-        pool.setPlace(rs.getString("place"));
-        pool.setDate(rs.getDate("date").toLocalDate());
-        pool.setTime(rs.getTime("time").toLocalTime());
-        pool.setID(rs.getLong("id"));
-//        System.out.println("rs = "+rs);
-        return pool;
+    @Transactional
+    public int deletePool(long poolID) {
+        String query = "DELETE FROM pool WHERE poolID = :poolID";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("poolID", poolID);
+        return namedParameterJdbcTemplate.update(query, params);
     }
 }
