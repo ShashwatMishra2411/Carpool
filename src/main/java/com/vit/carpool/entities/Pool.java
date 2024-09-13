@@ -22,23 +22,23 @@ public class Pool {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creatorID", referencedColumnName = "registrationNumber")
-    private User creatorID; // Creator of the pool (foreign key)
+    private User creator; // Creator of the pool (foreign key)
 
-    private int max_users; // Maximum number of users in the pool
+    private int maxUsers; // Maximum number of users in the pool
     private int fill; // Current number of users in the pool
 
-    // Constructors, Getters and Setters
+    // Constructors, Getters, and Setters
     public Pool() {
     }
 
     public Pool(String source, String destination, LocalDate date, LocalTime time,
-            User creatorID, int max_users, int fill) {
+                User creator, int maxUsers, int fill) {
         this.source = source;
         this.destination = destination;
         this.date = date;
         this.time = time;
-        this.creatorID = creatorID;
-        this.max_users = max_users;
+        this.creator = creator;
+        this.maxUsers = maxUsers;
         this.fill = fill;
     }
 
@@ -91,20 +91,20 @@ public class Pool {
         this.users = users;
     }
 
-    public User getCreatorID() {
-        return creatorID;
+    public User getCreator() {
+        return creator;
     }
 
-    public void setCreatorID(User creatorID) {
-        this.creatorID = creatorID;
+    public void setCreator(User creator) {
+        this.creator = creator;
     }
 
-    public int getmax_users() {
-        return max_users;
+    public int getMaxUsers() {
+        return maxUsers;
     }
 
-    public void setmax_users(int max_users) {
-        this.max_users = max_users;
+    public void setMaxUsers(int maxUsers) {
+        this.maxUsers = maxUsers;
     }
 
     public int getFill() {
