@@ -1,67 +1,70 @@
 package com.vit.carpool.entities;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
+import java.util.List;
 
+@Entity
 public class Pool {
-    private String name;
-    private String block;
-    private String place;
-    private LocalDate date;
-    private LocalTime time;
-    private long id;
-    @ManyToOne
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long poolID; // Primary Key
+
+    private String source; // Source of the pool
+    private String destination; // Destination of the pool
+    private LocalDate date; // Date of the pool
+    private LocalTime time; // Time of the pool
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<User> users; // List of users participating in the pool
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creatorID", referencedColumnName = "registrationNumber")
-    private User creator;
+    private User creatorID; // Creator of the pool (foreign key)
 
-    // Getters and Setters
-    // other fields
+    private int limit; // Maximum number of users in the pool
+    private int fill; // Current number of users in the pool
 
-    public Pool() {}
+    // Constructors, Getters and Setters
+    public Pool() {
+    }
 
-
-    public Pool(String name, String block, String place, LocalDate date, LocalTime time) {
-        this.name = name;
-        this.block = block;
-        this.place = place;
+    public Pool(String source, String destination, LocalDate date, LocalTime time,
+            User creatorID, int limit, int fill) {
+        this.source = source;
+        this.destination = destination;
         this.date = date;
         this.time = time;
+        this.creatorID = creatorID;
+        this.limit = limit;
+        this.fill = fill;
     }
 
-    public Pool(long id, String name, String block, String place, LocalDate date, LocalTime time) {
-    }
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
+    // Getters and setters for each field
+    public Long getPoolID() {
+        return poolID;
     }
 
-    public String getName() {
-        return name;
+    public void setPoolID(Long poolID) {
+        this.poolID = poolID;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getSource() {
+        return source;
     }
 
-    public String getBlock() {
-        return block;
+    public void setSource(String source) {
+        this.source = source;
     }
 
-    public void setBlock(String block) {
-        this.block = block;
+    public String getDestination() {
+        return destination;
     }
 
-    public String getPlace() {
-        return place;
-    }
-
-    public void setPlace(String place) {
-        this.place = place;
+    public void setDestination(String destination) {
+        this.destination = destination;
     }
 
     public LocalDate getDate() {
@@ -79,11 +82,36 @@ public class Pool {
     public void setTime(LocalTime time) {
         this.time = time;
     }
-    public long getID() {
-        return id;
+
+    public List<User> getUsers() {
+        return users;
     }
 
-    public void setID(long id) {
-        this.id = id;
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+    public User getCreatorID() {
+        return creatorID;
+    }
+
+    public void setCreatorID(User creatorID) {
+        this.creatorID = creatorID;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    public int getFill() {
+        return fill;
+    }
+
+    public void setFill(int fill) {
+        this.fill = fill;
     }
 }
