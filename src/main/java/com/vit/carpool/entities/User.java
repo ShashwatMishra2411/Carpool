@@ -21,7 +21,7 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "creatorID", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Pool> createdPools; // List of pools created by the user
 
     public String getRegistrationNumber() {
