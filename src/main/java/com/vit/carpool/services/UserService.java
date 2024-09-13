@@ -3,38 +3,44 @@ package com.vit.carpool.services;
 import com.vit.carpool.entities.User;
 import com.vit.carpool.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     private JwtUtil jwtUtil;
 
     // Method to handle user sign-in or registration and return a JWT token
+    @Transactional
     public String signInUser(User user) {
         try {
-            String query = "SELECT * FROM users WHERE registrationnumber = ?";
+            String query = "SELECT * FROM users WHERE registrationnumber = :registrationNumber";
 
             // Find if the user already exists in the database
-            Optional<User> existingUser = jdbcTemplate.query(query, new Object[]{user.getRegistrationNumber()}, this::mapRowToUser)
-                    .stream().findFirst();
-            System.out.println(existingUser.isPresent());
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("registrationNumber", user.getRegistrationNumber());
+
+            Optional<User> existingUser = namedParameterJdbcTemplate.query(query, params, new BeanPropertyRowMapper<>(User.class)).stream().findFirst();
+
             if (existingUser.isPresent()) {
                 // If the user exists, return a JWT token
                 return jwtUtil.generateToken(existingUser.get().getRegistrationNumber());
             } else {
                 // Insert a new user into the database
-                String insertQuery = "INSERT INTO users (registrationnumber, name) VALUES (?, ?)";
-                int rowsAffected = jdbcTemplate.update(insertQuery, user.getRegistrationNumber(), user.getName());
+                String insertQuery = "INSERT INTO users (registrationnumber, name) VALUES (:registrationNumber, :name)";
+                params.addValue("name", user.getName());
+
+                int rowsAffected = namedParameterJdbcTemplate.update(insertQuery, params);
 
                 if (rowsAffected > 0) {
                     // Return a JWT token for the newly created user
@@ -47,13 +53,5 @@ public class UserService {
             // Handle error and return appropriate message
             return "Error during sign-in: " + e.getMessage();
         }
-    }
-
-    // Method to map the result set row to a User object
-    private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
-        User user = new User();
-        user.setRegistrationNumber(rs.getString("registrationnumber"));
-        user.setName(rs.getString("name"));
-        return user;
     }
 }
