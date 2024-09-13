@@ -32,14 +32,14 @@ public class Pool {
     }
 
     public Pool(String source, String destination, LocalDate date, LocalTime time,
-                User creator, int maxUsers, int fill) {
+                User creator, int maxUsers) {
         this.source = source;
         this.destination = destination;
         this.date = date;
         this.time = time;
         this.creator = creator;
         this.maxUsers = maxUsers;
-        this.fill = fill;
+        this.fill = 0;
     }
 
     // Getters and setters for each field
