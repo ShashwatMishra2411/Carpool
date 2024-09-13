@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+// import java.util.List;
 
 @RestController
 @RequestMapping("/pools")
@@ -41,6 +41,7 @@ public class PoolController {
     @PostMapping
     public ResponseEntity<?> createPool(@RequestBody Pool pool) {
         try {
+            System.out.println(pool);
             poolService.createPool(pool);
             return new ResponseEntity<>("Pool created successfully", HttpStatus.CREATED);
         } catch (Exception e) {
