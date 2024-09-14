@@ -1,5 +1,6 @@
 package com.vit.carpool.services;
 
+import com.vit.carpool.entities.Combined;
 import com.vit.carpool.entities.Pool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -17,14 +18,17 @@ public class PoolService {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     // Method to retrieve all pool entries
-    public List<Pool> getAllPools() {
-        String query = "SELECT * FROM pool";
-        return namedParameterJdbcTemplate.query(query, new BeanPropertyRowMapper<>(Pool.class));
+    public List<Combined> getAllPools() {
+        String query = "SELECT p.*, u.registrationnumber AS creator_registrationnumber, u.name AS creator_name FROM pool p LEFT JOIN users u ON p.creatorID = u.registrationnumber";
+        return namedParameterJdbcTemplate.query(query, new BeanPropertyRowMapper<>(Combined.class));
     }
 
     // Method to find a pool by id
     public Pool getPoolById(long poolID) {
-        String query = "SELECT * FROM pool WHERE poolID = :poolID";
+        String query = "SELECT p.*, u.registrationnumber AS creator_registrationnumber, u.name AS creator_name " +
+                "FROM pool p " +
+                "LEFT JOIN users u ON p.creatorID = u.registrationnumber " +
+                "WHERE p.poolID = :poolID";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("poolID", poolID);
         return namedParameterJdbcTemplate.queryForObject(query, params, new BeanPropertyRowMapper<>(Pool.class));
