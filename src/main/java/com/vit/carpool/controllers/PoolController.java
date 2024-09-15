@@ -1,5 +1,6 @@
 package com.vit.carpool.controllers;
 
+import com.vit.carpool.entities.Combined;
 import com.vit.carpool.entities.Pool;
 import com.vit.carpool.services.PoolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 // import java.util.List;
 
@@ -29,7 +32,7 @@ public class PoolController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getPoolById(@PathVariable long id) {
         try {
-            Pool pool = poolService.getPoolById(id);
+            Combined pool = poolService.getPoolById(id);
             return new ResponseEntity<>(pool, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             return new ResponseEntity<>("Pool not found", HttpStatus.NOT_FOUND);
@@ -76,4 +79,5 @@ public class PoolController {
             return new ResponseEntity<>("Error deleting pool: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }
