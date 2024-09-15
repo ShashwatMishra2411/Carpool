@@ -1,8 +1,16 @@
 package com.vit.carpool.entities;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 // import java.util.List;
 
 @Entity
@@ -20,7 +28,7 @@ public class Pool {
     private int maxUsers;
     private int fill;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creatorID")
     private User creator;
 
