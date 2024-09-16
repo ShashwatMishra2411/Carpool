@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-// import java.util.List;
+import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "pool")
@@ -31,6 +31,9 @@ public class Pool {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creatorID")
     private User creator;
+
+    @Column(name = "users", columnDefinition = "VARCHAR(50)[]")
+    private String[] users;
 
     // Getters and setters
 
@@ -96,5 +99,13 @@ public class Pool {
 
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+
+    public String[] getUsers() {
+        return users;
+    }
+
+    public void setUsers(String[] users) {
+        this.users = users;
     }
 }

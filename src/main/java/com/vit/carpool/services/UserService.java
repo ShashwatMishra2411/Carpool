@@ -30,7 +30,8 @@ public class UserService {
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue("registrationNumber", user.getRegistrationNumber());
 
-            Optional<User> existingUser = namedParameterJdbcTemplate.query(query, params, new BeanPropertyRowMapper<>(User.class)).stream().findFirst();
+            Optional<User> existingUser = namedParameterJdbcTemplate
+                    .query(query, params, new BeanPropertyRowMapper<>(User.class)).stream().findFirst();
 
             if (existingUser.isPresent()) {
                 // If the user exists, return a JWT token

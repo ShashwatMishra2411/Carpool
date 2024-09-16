@@ -24,26 +24,13 @@ public class Combined {
     @Column(name = "creatorid")
     private String creatorID; // Creator ID (can store registration number)
 
+    @Column(name = "users", columnDefinition = "text[]")
+    private String[] users; // Array of user registration numbers
+
     @Transient // Creator's name is not stored in the actual table but retrieved via a join
-    private String creatorName;
+    private String creatorName; // Creator's name
 
-    // Constructors
-    public Combined() {
-    }
-
-    public Combined(Long poolID, String source, String destination, LocalDate date, LocalTime time, int max_users,
-            int fill, String creatorID) {
-        this.poolID = poolID;
-        this.source = source;
-        this.destination = destination;
-        this.date = date;
-        this.time = time;
-        this.max_users = max_users;
-        this.fill = fill;
-        this.creatorID = creatorID;
-    }
-
-    // Getters and Setters
+    // Getters and setters
     public Long getPoolID() {
         return poolID;
     }
@@ -106,6 +93,14 @@ public class Combined {
 
     public void setCreatorID(String creatorID) {
         this.creatorID = creatorID;
+    }
+
+    public String[] getUsers() {
+        return users;
+    }
+
+    public void setUsers(String[] users) {
+        this.users = users;
     }
 
     public String getCreatorName() {
