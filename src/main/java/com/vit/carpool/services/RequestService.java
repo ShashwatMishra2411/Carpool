@@ -1,6 +1,7 @@
 package com.vit.carpool.services;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -91,11 +92,46 @@ public class RequestService {
     // Method to update a request status
     @Transactional
     public int updateRequestStatus(long requestId, RequestStatus status) {
-        String query = "UPDATE request SET status = :status WHERE requestId = :requestId";
+
+        // * UPDATE THE REQUEST STATUS
+        String updateStatusQuery = "UPDATE request SET status = :status WHERE request_id = :requestId";
+
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("status", status.name());
         params.addValue("requestId", requestId);
-        return namedParameterJdbcTemplate.update(query, params);
+        int rowsAffected = namedParameterJdbcTemplate.update(updateStatusQuery, params);
+
+        if (status == RequestStatus.APPROVED) {
+            // ? REMOVE THE USER_ID FROM ALL ROWS IN THE REQUEST TABLE AS USER GOT ACCEPTED
+            // BY THE CREATOR
+
+            // * retrieve the user_id and pool_id associated with the given requestId
+
+            String getUserQuery = "SELECT user_id, pool_id FROM request where request_id = :requestId";
+
+            Map<String, Object> result = namedParameterJdbcTemplate.queryForMap(getUserQuery, params);
+            String userId = (String) result.get("user_id");
+            Long poolId = (Long) result.get("pool_id");
+
+            // * ADD THE USER_ID TO THE USERS FIELD IN THE POOL TABLE
+
+            String addUserToPoolQuery = "UPDATE pool SET users = array_append(users, :userId) WHERE poolID = :poolId";
+            MapSqlParameterSource addUserToPoolParams = new MapSqlParameterSource();
+
+            addUserToPoolParams.addValue("userId", userId);
+            addUserToPoolParams.addValue("poolId", poolId);
+            namedParameterJdbcTemplate.update(addUserToPoolQuery, addUserToPoolParams);
+
+            // * REMOVE THE USER_ID FROM ALL ROWS IN THE REQUEST TABLE
+
+            String removeUserFromRequestQuery = "DELETE from request where user_id = :userId";
+
+            MapSqlParameterSource removeUserParams = new MapSqlParameterSource();
+            removeUserParams.addValue("userId", userId);
+            namedParameterJdbcTemplate.update(removeUserFromRequestQuery, removeUserParams);
+        }
+
+        return rowsAffected;
     }
 
     // Method to delete a request
