@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,24 +27,7 @@ public class RequestController {
 
     // Route to retrieve all requests
     @GetMapping
-    public ResponseEntity<?> getAllRequests(String creatorId, String userId, Long poolId) {
-        StringBuilder query = new StringBuilder("SELECT * FROM request WHERE 1=1");
-        MapSqlParameterSource params = new MapSqlParameterSource();
-
-        if (creatorId != null) {
-            query.append(" AND creator_id = :creatorId");
-            params.addValue("creatorId", creatorId);
-        }
-
-        if (userId != null) {
-            query.append(" AND user_id = :userId");
-            params.addValue("userId", userId);
-        }
-
-        if (poolId != null) {
-            query.append(" AND pool_id = :poolId");
-            params.addValue("poolId", poolId);
-        }
+    public ResponseEntity<?> getAllRequests() {
 
         try {
             List<Request> requests = requestService.getAllRequests();
