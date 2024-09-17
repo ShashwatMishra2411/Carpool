@@ -41,6 +41,11 @@ public class RequestController {
     // Route to find a request by id
     @GetMapping("/{requestId}")
     public ResponseEntity<?> getRequestById(@PathVariable long requestId) {
+        if (requestId < 0) {
+            return new ResponseEntity<>("Invalid request ID", HttpStatus.BAD_REQUEST);
+        } else {
+            System.out.println(requestId);
+        }
         try {
             Request request = requestService.getRequestById(requestId);
             return ResponseEntity.ok(request);
