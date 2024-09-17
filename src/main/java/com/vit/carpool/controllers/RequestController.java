@@ -68,6 +68,11 @@ public class RequestController {
     @PutMapping("/{requestId}/status")
     public ResponseEntity<?> updateRequestStatus(@PathVariable long requestId,
             @RequestBody RequestStatus status) {
+        if (requestId < 0 || status == null) {
+            return new ResponseEntity<>("Invalid request body", HttpStatus.BAD_REQUEST);
+        } else {
+            System.out.println(requestId + ", " + status);
+        }
         try {
             int result = requestService.updateRequestStatus(requestId, status);
             return ResponseEntity.ok(result);
