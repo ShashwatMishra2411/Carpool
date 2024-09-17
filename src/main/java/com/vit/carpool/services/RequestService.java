@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.vit.carpool.entities.Request;
 import com.vit.carpool.enums.RequestStatus;
+import com.vit.carpool.mapper.RequestRowMapper;
 
 @Service
 public class RequestService {
@@ -20,8 +21,26 @@ public class RequestService {
 
     // Method to retrieve all requests
     public List<Request> getAllRequests() {
-        String query = "SELECT * FROM request";
-        return namedParameterJdbcTemplate.query(query, new BeanPropertyRowMapper<>(Request.class));
+        String query = """
+                SELECT
+                	p.poolid as pool_id,
+                    p.source,
+                    p.destination,
+                    p.date,
+                    p.time,
+                    r.status,
+                    u.registrationnumber AS requester,
+                    u.name AS requester_name
+                FROM
+                    request r
+                JOIN
+                    pool p ON r.pool_id = p.poolID
+                JOIN
+                    users u ON r.user_id = u.registrationnumber;
+                                                                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        return namedParameterJdbcTemplate.query(query, params, new RequestRowMapper());
     }
 
     // Method to find a request by id
