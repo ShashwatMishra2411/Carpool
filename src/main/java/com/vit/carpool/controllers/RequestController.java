@@ -43,8 +43,6 @@ public class RequestController {
     public ResponseEntity<?> getRequestById(@PathVariable long requestId) {
         if (requestId < 0) {
             return new ResponseEntity<>("Invalid request ID", HttpStatus.BAD_REQUEST);
-        } else {
-            System.out.println(requestId);
         }
         try {
             Request request = requestService.getRequestById(requestId);
