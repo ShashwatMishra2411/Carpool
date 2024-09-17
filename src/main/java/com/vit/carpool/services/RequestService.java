@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.vit.carpool.entities.Request;
 import com.vit.carpool.enums.RequestStatus;
+import com.vit.carpool.mapper.RequestByIdRowMapper;
 import com.vit.carpool.mapper.RequestRowMapper;
 
 @Service
@@ -37,7 +38,7 @@ public class RequestService {
                     pool p ON r.pool_id = p.poolID
                 JOIN
                     users u ON r.user_id = u.registrationnumber;
-                                                                """;
+                """;
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         return namedParameterJdbcTemplate.query(query, params, new RequestRowMapper());
@@ -45,10 +46,33 @@ public class RequestService {
 
     // Method to find a request by id
     public Request getRequestById(long requestId) {
-        String query = "SELECT * FROM request WHERE requestId = :requestId";
+        String query = """
+                SELECT
+                	p.poolid as pool_id,
+                    p.source,
+                    p.destination,
+                    p.date,
+                    p.time,
+                    r.status,
+                    u.registrationnumber AS requester,
+                    u.name AS requester_name,
+                	c.registrationnumber AS creator_id,
+                	c.name AS creator_name
+                FROM
+                    request r
+                JOIN
+                    pool p ON r.pool_id = p.poolID
+                JOIN
+                    users u ON r.user_id = u.registrationnumber
+                JOIN
+                	users c ON r.creator_id = c.registrationnumber
+                WHERE
+                    r.request_id = :requestId
+                """;
+
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("requestId", requestId);
-        return namedParameterJdbcTemplate.queryForObject(query, params, new BeanPropertyRowMapper<>(Request.class));
+        return namedParameterJdbcTemplate.queryForObject(query, params, new RequestByIdRowMapper());
     }
 
     // Method to create a new request
