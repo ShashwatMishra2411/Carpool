@@ -21,19 +21,18 @@ curl -X GET http://localhost:8080/pools
 
 ```json
 [
-    {
-        "poolID": 1,
-        "source": "Location A",
-        "destination": "Location B",
-        "date": "2024-09-19",
-        "time": "08:00",
-        "creatorID": "user123",
-        "maxUsers": 4,
-        "fill": 2,
-        "users": ["user1", "user2"],
-        "creatorName": "John Doe"
-    },
-    ...
+  {
+    "poolID": 1,
+    "source": "Location A",
+    "destination": "Location B",
+    "date": "2024-09-19",
+    "time": "08:00",
+    "creatorID": "user123",
+    "maxUsers": 4,
+    "fill": 2,
+    "users": ["user1", "user2"],
+    "creatorName": "John Doe"
+  }
 ]
 ```
 
@@ -268,17 +267,16 @@ curl -X GET http://localhost:8080/api/requests
 
 ```json
 [
-    {
-        "poolId": 1,
-        "source": "Location A",
-        "destination": "Location B",
-        "date": "2024-09-19",
-        "time": "08:00",
-        "status": "PENDING",
-        "requester": "user1",
-        "requesterName": "John Doe"
-    },
-    ...
+  {
+    "poolId": 1,
+    "source": "Location A",
+    "destination": "Location B",
+    "date": "2024-09-19",
+    "time": "08:00",
+    "status": "PENDING",
+    "requester": "user1",
+    "requesterName": "John Doe"
+  }
 ]
 ```
 
@@ -495,17 +493,16 @@ curl -X GET http://localhost:8080/api/requests/by-creator/user123
 
 ```json
 [
-    {
-        "poolId": 1,
-        "source": "Location A",
-        "destination": "Location B",
-        "date": "2024-09-19",
-        "time": "08:00",
-        "status": "PENDING",
-        "requester": "user1",
-        "requesterName": "John Doe"
-    },
-    ...
+  {
+    "poolId": 1,
+    "source": "Location A",
+    "destination": "Location B",
+    "date": "2024-09-19",
+    "time": "08:00",
+    "status": "PENDING",
+    "requester": "user1",
+    "requesterName": "John Doe"
+  }
 ]
 ```
 
