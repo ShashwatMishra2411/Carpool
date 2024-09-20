@@ -14,7 +14,7 @@ Retrieve a list of all available pools.
 #### cURL Command:
 
 ```bash
-curl -X GET http://localhost:8080/pools
+curl -X GET https://spring-boot-app-ubit.onrender.com/pools
 ```
 
 #### Expected Response (200 OK):
@@ -55,7 +55,7 @@ Retrieve details of a specific pool by its ID.
 #### cURL Command:
 
 ```bash
-curl -X GET http://localhost:8080/pools/1
+curl -X GET https://spring-boot-app-ubit.onrender.com/pools/1
 ```
 
 #### Expected Response (200 OK):
@@ -102,7 +102,7 @@ Create a new pool.
 #### cURL Command:
 
 ```bash
-curl -X POST http://localhost:8080/pools \
+curl -X POST https://spring-boot-app-ubit.onrender.com/pools \
 -H "Content-Type: application/json" \
 -d '{
     "source": "Location A",
@@ -158,7 +158,7 @@ Update an existing pool by its ID.
 #### cURL Command:
 
 ```bash
-curl -X PUT http://localhost:8080/pools/1 \
+curl -X PUT https://spring-boot-app-ubit.onrender.com/pools/1 \
 -H "Content-Type: application/json" \
 -d '{
     "source": "Location A",
@@ -222,7 +222,7 @@ Delete an existing pool by its ID.
 #### cURL Command:
 
 ```bash
-curl -X DELETE http://localhost:8080/pools/1
+curl -X DELETE https://spring-boot-app-ubit.onrender.com/pools/1
 ```
 
 #### Expected Response (200 OK):
@@ -260,7 +260,7 @@ Retrieve all requests.
 #### cURL Command:
 
 ```bash
-curl -X GET http://localhost:8080/api/requests
+curl -X GET https://spring-boot-app-ubit.onrender.com/api/requests
 ```
 
 #### Expected Response (200 OK):
@@ -299,7 +299,7 @@ Retrieve details of a specific request by its ID.
 #### cURL Command:
 
 ```bash
-curl -X GET http://localhost:8080/api/requests/1
+curl -X GET https://spring-boot-app-ubit.onrender.com/api/requests/1
 ```
 
 #### Expected Response (200 OK):
@@ -346,7 +346,7 @@ Create a new request.
 #### cURL Command:
 
 ```bash
-curl -X POST http://localhost:8080/api/requests \
+curl -X POST https://spring-boot-app-ubit.onrender.com/api/requests \
 -H "Content-Type: application/json" \
 -d '{
     "pool": {
@@ -406,7 +406,7 @@ Update the status of a specific request by its ID.
 #### cURL Command:
 
 ```bash
-curl -X PUT http://localhost:8080/api/requests/1/status \
+curl -X PUT https://spring-boot-app-ubit.onrender.com/api/requests/1/status \
 -H "Content-Type: application/json" \
 -d '{
     "status": "APPROVED"
@@ -456,7 +456,7 @@ Delete a specific request by its ID.
 #### cURL Command:
 
 ```bash
-curl -X DELETE http://localhost:8080/api/requests/1
+curl -X DELETE https://spring-boot-app-ubit.onrender.com/api/requests/1
 ```
 
 #### Expected Response (200 OK):
@@ -486,7 +486,7 @@ Retrieve all requests for pools created by a specific user.
 #### cURL Command:
 
 ```bash
-curl -X GET http://localhost:8080/api/requests/by-creator/user123
+curl -X GET https://spring-boot-app-ubit.onrender.com/api/requests/by-creator/user123
 ```
 
 #### Expected Response (200 OK):
