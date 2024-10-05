@@ -44,7 +44,6 @@ public class PoolController {
     @PostMapping
     public ResponseEntity<?> createPool(@RequestBody Pool pool) {
         try {
-            System.out.println(pool);
             poolService.createPool(pool);
             return new ResponseEntity<>("Pool created successfully", HttpStatus.CREATED);
         } catch (Exception e) {
