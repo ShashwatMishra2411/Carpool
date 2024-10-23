@@ -2,6 +2,9 @@ package com.vit.carpool.services;
 
 import com.vit.carpool.entities.Combined;
 import com.vit.carpool.entities.Pool;
+import com.vit.carpool.entities.User;
+import com.vit.carpool.mapper.UserRowMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -12,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,6 +23,7 @@ public class PoolService {
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private User user = new User();
 
     // Method to retrieve all pool entries
     public List<Combined> getAllPools() {
@@ -42,10 +47,23 @@ public class PoolService {
     // Method to create a new pool
     @Transactional
     public int createPool(Pool pool) {
+        String query1 = "Select * from users where registrationnumber= :registrationnumber";
+        MapSqlParameterSource params1 = new MapSqlParameterSource();
+        params1.addValue("registrationnumber", pool.getCreator().getRegistrationNumber());
+        User user = (namedParameterJdbcTemplate.queryForObject(query1, params1, new UserRowMapper()));
+
+        pool.setCreator(user);
+        System.out.println(pool.getCreator().getCreatedPools());
+
+        if (pool.getCreator().getCreatedPools().size() >= 5) {
+            throw new IllegalStateException("A user can only create up to 5 pools.");
+        }
         if (pool.getUsers().length != pool.getFill()) {
             throw new IllegalArgumentException("Length of users array must be equal to fill column value");
         }
 
+        ArrayList<Long> createdPools = pool.getCreator().getCreatedPools();
+        createdPools.add(pool.getPoolID());
         String query = "INSERT INTO pool (source, destination, date, time, creatorID, max_users, fill, users) " +
                 "VALUES (:source, :destination, :date, :time, :creatorID, :max_users, :fill, :users)";
         MapSqlParameterSource params = new MapSqlParameterSource();
