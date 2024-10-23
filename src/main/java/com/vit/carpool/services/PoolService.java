@@ -3,7 +3,6 @@ package com.vit.carpool.services;
 import com.vit.carpool.entities.Combined;
 import com.vit.carpool.entities.Pool;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;

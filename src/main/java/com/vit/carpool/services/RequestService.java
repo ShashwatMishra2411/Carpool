@@ -25,20 +25,26 @@ public class RequestService {
     public List<Request> getAllRequests() {
         String query = """
                 SELECT
+                    r.request_id,
                 	p.poolid as pool_id,
                     p.source,
                     p.destination,
                     p.date,
                     p.time,
+                    p.creatorid,
                     r.status,
                     u.registrationnumber AS requester,
-                    u.name AS requester_name
+                    u.name AS requester_name,
+                    u1.registrationnumber AS creator,
+                    u1.name AS creator_name
                 FROM
                     request r
                 JOIN
                     pool p ON r.pool_id = p.poolID
                 JOIN
-                    users u ON r.user_id = u.registrationnumber;
+                    users u ON r.user_id = u.registrationnumber
+                JOIN
+                    users u1 ON r.creator_id = u1.registrationnumber;
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -82,6 +88,8 @@ public class RequestService {
         String query = "INSERT INTO request (pool_id, creator_id, user_id, status) " +
                 "VALUES (:pool_id, :creator_id, :user_id, :status)";
         MapSqlParameterSource params = new MapSqlParameterSource();
+        System.out.println(request.getCreator().getRegistrationNumber());
+        System.out.println(request.getUser());
         params.addValue("pool_id", request.getPool().getPoolID());
         params.addValue("creator_id", request.getCreator().getRegistrationNumber());
         params.addValue("user_id", request.getUser().getRegistrationNumber());
