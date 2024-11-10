@@ -1,5 +1,6 @@
 package com.vit.carpool.controllers;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vit.carpool.entities.Request;
+import com.vit.carpool.entities.RequestByCreator;
 import com.vit.carpool.enums.RequestStatus;
 import com.vit.carpool.services.RequestService;
 
@@ -59,8 +61,13 @@ public class RequestController {
         try {
             int result = requestService.createRequest(request);
             return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (SQLException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>("Error creating request: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
     }
 
@@ -97,7 +104,7 @@ public class RequestController {
     @GetMapping("/by-creator/{creatorId}")
     public ResponseEntity<?> getRequestsByCreator(@PathVariable String creatorId) {
         try {
-            List<Request> requests = requestService.getRequestsByCreator(creatorId);
+            List<RequestByCreator> requests = requestService.getRequestsByCreator(creatorId.toLowerCase());
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
             return new ResponseEntity<>("Error retrieving requests by creator: " + e.getMessage(),
