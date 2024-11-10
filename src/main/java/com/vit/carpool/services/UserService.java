@@ -24,6 +24,7 @@ public class UserService {
     @Transactional
     public String signInUser(User user) {
         try {
+            user.setRegistrationNumber(user.getRegistrationNumber().toLowerCase());
             String query = "SELECT * FROM users WHERE registrationnumber = :registrationNumber";
 
             // Find if the user already exists in the database
@@ -38,8 +39,10 @@ public class UserService {
                 return jwtUtil.generateToken(existingUser.get().getRegistrationNumber());
             } else {
                 // Insert a new user into the database
-                String insertQuery = "INSERT INTO users (registrationnumber, name) VALUES (:registrationNumber, :name)";
+                String insertQuery = "INSERT INTO users (registrationnumber, name, gender, email) VALUES (:registrationNumber, :name, :gender, :email)";
                 params.addValue("name", user.getName());
+                params.addValue("gender", user.getGender());
+                params.addValue("email", user.getEmail());
 
                 int rowsAffected = namedParameterJdbcTemplate.update(insertQuery, params);
 
