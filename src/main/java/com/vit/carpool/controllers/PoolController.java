@@ -47,8 +47,10 @@ public class PoolController {
             poolService.createPool(pool);
             return new ResponseEntity<>("Pool created successfully", HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error creating pool: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            // TODO: handle exception
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+
     }
 
     @PutMapping("/{id}")
