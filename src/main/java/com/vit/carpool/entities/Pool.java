@@ -18,7 +18,6 @@ import jakarta.persistence.Column;
 public class Pool {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long poolID;
 
     private String source;
