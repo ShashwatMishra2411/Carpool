@@ -1,18 +1,20 @@
 package com.vit.carpool.services;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.vit.carpool.entities.Request;
+import com.vit.carpool.entities.RequestByCreator;
 import com.vit.carpool.enums.RequestStatus;
-import com.vit.carpool.mapper.RequestByIdRowMapper;
+import com.vit.carpool.mapper.RequestByCreatorRowMapper;
 import com.vit.carpool.mapper.RequestRowMapper;
 
 @Service
@@ -55,16 +57,18 @@ public class RequestService {
     public Request getRequestById(long requestId) {
         String query = """
                 SELECT
+                    r.request_id,
                 	p.poolid as pool_id,
                     p.source,
                     p.destination,
                     p.date,
                     p.time,
+                    p.creatorid,
                     r.status,
                     u.registrationnumber AS requester,
                     u.name AS requester_name,
-                	c.registrationnumber AS creator_id,
-                	c.name AS creator_name
+                    u1.registrationnumber AS creator,
+                    u1.name AS creator_name
                 FROM
                     request r
                 JOIN
@@ -72,29 +76,43 @@ public class RequestService {
                 JOIN
                     users u ON r.user_id = u.registrationnumber
                 JOIN
-                	users c ON r.creator_id = c.registrationnumber
+                    users u1 ON r.creator_id = u1.registrationnumber
                 WHERE
-                    r.request_id = :requestId
+                    r.request_id = :requestId;
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("requestId", requestId);
-        return namedParameterJdbcTemplate.queryForObject(query, params, new RequestByIdRowMapper());
+        return namedParameterJdbcTemplate.queryForObject(query, params, new RequestRowMapper());
     }
 
     // Method to create a new request
     @Transactional
-    public int createRequest(Request request) {
-        String query = "INSERT INTO request (pool_id, creator_id, user_id, status) " +
-                "VALUES (:pool_id, :creator_id, :user_id, :status)";
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        System.out.println(request.getCreator().getRegistrationNumber());
-        System.out.println(request.getUser());
-        params.addValue("pool_id", request.getPool().getPoolID());
-        params.addValue("creator_id", request.getCreator().getRegistrationNumber());
-        params.addValue("user_id", request.getUser().getRegistrationNumber());
-        params.addValue("status", request.getStatus().name());
-        return namedParameterJdbcTemplate.update(query, params);
+    public int createRequest(Request request) throws SQLException {
+        String checkQuery = "SELECT poolid FROM pool WHERE :userId = ANY(users);";
+        MapSqlParameterSource checkParams = new MapSqlParameterSource();
+        checkParams.addValue("userId", request.getUser().getRegistrationNumber());
+        List<Map<String, Object>> result = namedParameterJdbcTemplate.queryForList(checkQuery, checkParams);
+
+        if (result.size() > 0) {
+            System.out.println(result);
+            throw new IllegalArgumentException("User already in a pool");
+        } else {
+            try {
+                String query = "INSERT INTO request (pool_id, creator_id, user_id, status) " +
+                        "VALUES (:pool_id, :creator_id, :user_id, :status)";
+                MapSqlParameterSource params = new MapSqlParameterSource();
+                params.addValue("pool_id", request.getPool().getPoolID());
+                params.addValue("creator_id", request.getCreator().getRegistrationNumber());
+                params.addValue("user_id", request.getUser().getRegistrationNumber());
+                params.addValue("status", request.getStatus().name());
+                return namedParameterJdbcTemplate.update(query, params);
+            } catch (DataAccessException e) {
+                throw new SQLException("Failed to create request: " + e.getMessage(), e);
+            }
+
+        }
+
     }
 
     // Method to update a request status
@@ -123,7 +141,7 @@ public class RequestService {
 
             // * ADD THE USER_ID TO THE USERS FIELD IN THE POOL TABLE
 
-            String addUserToPoolQuery = "UPDATE pool SET users = array_append(users, :userId) WHERE poolID = :poolId";
+            String addUserToPoolQuery = "UPDATE pool SET users = array_append(users, :userId), fill = fill+1 WHERE poolID = :poolId";
             MapSqlParameterSource addUserToPoolParams = new MapSqlParameterSource();
 
             addUserToPoolParams.addValue("userId", userId);
@@ -152,12 +170,13 @@ public class RequestService {
     }
 
     // Method to fetch all requests for pools created by a specific user
-    public List<Request> getRequestsByCreator(String creatorId) {
-        String query = "SELECT r.* FROM request r " +
-                "JOIN pool p ON r.pool_id = p.poolID " +
-                "WHERE p.creator_id = :creatorId";
+    public List<RequestByCreator> getRequestsByCreator(String creatorId) {
+        System.out.println(creatorId);
+        String query = "SELECT r.request_id,r.status,r.pool_id,r.creator_id,r.user_id FROM request r " +
+                "JOIN pool p ON r.pool_id = p.poolid " +
+                "WHERE p.creatorid = :creatorId";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("creatorId", creatorId);
-        return namedParameterJdbcTemplate.query(query, params, new BeanPropertyRowMapper<>(Request.class));
+        return namedParameterJdbcTemplate.query(query, params, new RequestByCreatorRowMapper());
     }
 }
