@@ -2,13 +2,9 @@ package com.vit.carpool.entities;
 
 // import org.hibernate.mapping.List;
 import java.util.ArrayList;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 // import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -25,12 +21,34 @@ public class User {
 
     private ArrayList<Long> createdPools = new ArrayList<>(); // Multiple pools created by the user
 
+    @Column(name = "email", nullable = false)
+    String email;
+
+    @Column(name = "gender", nullable = false)
+    String gender;
+
     public String getRegistrationNumber() {
         return registrationNumber;
     }
 
     public void setRegistrationNumber(String registrationNumber) {
         this.registrationNumber = registrationNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getName() {
