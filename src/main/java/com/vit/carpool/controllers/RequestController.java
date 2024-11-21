@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vit.carpool.entities.Request;
 import com.vit.carpool.entities.RequestByCreator;
+import com.vit.carpool.entities.RequestByUser;
 import com.vit.carpool.enums.RequestStatus;
 import com.vit.carpool.services.RequestService;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/requests")
@@ -113,4 +115,17 @@ public class RequestController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/byUser/{userId}")
+    public ResponseEntity<?> getMethodName(@PathVariable String userId) {
+        try {
+            List<RequestByUser> response = requestService.getRequestsByUser(userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving requests by user: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
 }

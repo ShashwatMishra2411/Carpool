@@ -14,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.vit.carpool.entities.Request;
 import com.vit.carpool.entities.RequestByCreator;
+import com.vit.carpool.entities.RequestByUser;
 import com.vit.carpool.enums.RequestStatus;
 import com.vit.carpool.mapper.RequestByCreatorRowMapper;
+import com.vit.carpool.mapper.RequestByUserRowMapper;
 import com.vit.carpool.mapper.RequestRowMapper;
 
 @Service
@@ -192,5 +194,15 @@ public class RequestService {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("creatorId", creatorId);
         return namedParameterJdbcTemplate.query(query, params, new RequestByCreatorRowMapper());
+    }
+
+    public List<RequestByUser> getRequestsByUser(String userId) {
+        String query = "SELECT r.request_id,r.status,r.pool_id,r.creator_id,r.user_id FROM request r " +
+                "WHERE r.user_id = :userId ";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        return namedParameterJdbcTemplate.query(query, params, new RequestByUserRowMapper());
+
     }
 }
