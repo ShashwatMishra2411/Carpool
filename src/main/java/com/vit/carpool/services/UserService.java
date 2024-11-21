@@ -2,6 +2,8 @@ package com.vit.carpool.services;
 
 import com.vit.carpool.entities.User;
 import com.vit.carpool.jwt.JwtUtil;
+import com.vit.carpool.mapper.UserRowMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -57,5 +59,14 @@ public class UserService {
             // Handle error and return appropriate message
             return "Error during sign-in: " + e.getMessage();
         }
+    }
+
+    @Transactional
+    public User getUser(String id) {
+        String query = "Select * from users where registrationnumber = :registrationnumber;";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("registrationnumber", id);
+        User user = namedParameterJdbcTemplate.queryForObject(query, params, new UserRowMapper());
+        return user;
     }
 }
