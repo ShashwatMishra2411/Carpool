@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -116,9 +117,7 @@ public class RequestService {
     }
 
     // Method to update a request status
-    @Transactional
     public int updateRequestStatus(long requestId, RequestStatus status) {
-
         // * UPDATE THE REQUEST STATUS
         String updateStatusQuery = "UPDATE request SET status = :status WHERE request_id = :requestId";
 
@@ -132,29 +131,44 @@ public class RequestService {
             // BY THE CREATOR
 
             // * retrieve the user_id and pool_id associated with the given requestId
-
             String getUserQuery = "SELECT user_id, pool_id FROM request where request_id = :requestId";
-
             Map<String, Object> result = namedParameterJdbcTemplate.queryForMap(getUserQuery, params);
-            String userId = (String) result.get("user_id");
-            Long poolId = (Long) result.get("pool_id");
 
-            // * ADD THE USER_ID TO THE USERS FIELD IN THE POOL TABLE
+            if (result != null) {
+                String userId = (String) result.get("user_id");
+                Long poolId = (Long) result.get("pool_id");
 
-            String addUserToPoolQuery = "UPDATE pool SET users = array_append(users, :userId), fill = fill+1 WHERE poolID = :poolId";
-            MapSqlParameterSource addUserToPoolParams = new MapSqlParameterSource();
+                // * ADD THE USER_ID TO THE USERS FIELD IN THE POOL TABLE
+                MapSqlParameterSource poolParam = new MapSqlParameterSource();
+                poolParam.addValue("poolid", poolId);
+                List<Map<String, Object>> pool = namedParameterJdbcTemplate
+                        .queryForList("SELECT * FROM pool WHERE poolid = :poolid", poolParam);
 
-            addUserToPoolParams.addValue("userId", userId);
-            addUserToPoolParams.addValue("poolId", poolId);
-            namedParameterJdbcTemplate.update(addUserToPoolQuery, addUserToPoolParams);
+                if (!pool.isEmpty()) {
+                    int filled = Integer.parseInt(pool.get(0).get("fill").toString());
+                    int max = Integer.parseInt(pool.get(0).get("max_users").toString()); // Use correct column
 
-            // * REMOVE THE USER_ID FROM ALL ROWS IN THE REQUEST TABLE
+                    if (max <= filled) {
+                        // The condition where the number of users in the pool exceeds the max capacity
+                        deleteRequest(requestId); // Delete request before throwing exception
+                        throw new IllegalArgumentException(
+                                "The number of filled users cannot exceed the maximum allowed.");
+                    }
 
-            String removeUserFromRequestQuery = "DELETE from request where user_id = :userId";
+                    // Add the user to the pool if the condition is met
+                    String addUserToPoolQuery = "UPDATE pool SET users = array_append(users, :userId), fill = fill + 1 WHERE poolID = :poolId";
+                    MapSqlParameterSource addUserToPoolParams = new MapSqlParameterSource();
+                    addUserToPoolParams.addValue("userId", userId);
+                    addUserToPoolParams.addValue("poolId", poolId);
+                    namedParameterJdbcTemplate.update(addUserToPoolQuery, addUserToPoolParams);
 
-            MapSqlParameterSource removeUserParams = new MapSqlParameterSource();
-            removeUserParams.addValue("userId", userId);
-            namedParameterJdbcTemplate.update(removeUserFromRequestQuery, removeUserParams);
+                    // * REMOVE THE USER_ID FROM ALL ROWS IN THE REQUEST TABLE
+                    String removeUserFromRequestQuery = "DELETE FROM request WHERE user_id = :userId";
+                    MapSqlParameterSource removeUserParams = new MapSqlParameterSource();
+                    removeUserParams.addValue("userId", userId);
+                    namedParameterJdbcTemplate.update(removeUserFromRequestQuery, removeUserParams);
+                }
+            }
         }
 
         return rowsAffected;
@@ -163,7 +177,7 @@ public class RequestService {
     // Method to delete a request
     @Transactional
     public int deleteRequest(long requestId) {
-        String query = "DELETE FROM request WHERE requestId = :requestId";
+        String query = "DELETE FROM request WHERE request_id = :requestId";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("requestId", requestId);
         return namedParameterJdbcTemplate.update(query, params);
