@@ -83,6 +83,8 @@ public class RequestController {
         try {
             int result = requestService.updateRequestStatus(requestId, status);
             return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>("Error updating request status: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
