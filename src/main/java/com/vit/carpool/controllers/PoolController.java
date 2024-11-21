@@ -3,6 +3,10 @@ package com.vit.carpool.controllers;
 import com.vit.carpool.entities.Combined;
 import com.vit.carpool.entities.Pool;
 import com.vit.carpool.services.PoolService;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -10,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 // import java.util.List;
 
@@ -39,6 +45,16 @@ public class PoolController {
         } catch (Exception e) {
             return new ResponseEntity<>("Error retrieving pool: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/pool/{id}")
+    public ResponseEntity<?> getPoolByUserId(@PathVariable long id) {
+        List<Combined> pools = poolService.getPoolByUserId(id);
+        return new ResponseEntity<>(pools, HttpStatus.OK);
+    }
+
+    public String getMethodName(@RequestParam String param) {
+        return new String();
     }
 
     @PostMapping
