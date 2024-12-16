@@ -6,6 +6,7 @@ import com.vit.carpool.services.PoolService;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.vit.carpool.entities.RemoveUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,11 +19,31 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 // import java.util.List;
+// public class RemoveUser {
+//     private String userid;
+//     private long poolid;
+
+//     public String getUserid() {
+//         return userid;
+//     }
+
+//     public void setUserid(String userid) {
+//         this.userid = userid;
+//     }
+
+//     public long getPoolid() {
+//         return poolid;
+//     }
+
+//     public void setPoolid(long poolid) {
+//         this.poolid = poolid;
+//     }
+// }
 
 @RestController
+
 @RequestMapping("/pools")
 public class PoolController {
-
     @Autowired
     private PoolService poolService;
 
@@ -94,6 +115,21 @@ public class PoolController {
             }
         } catch (Exception e) {
             return new ResponseEntity<>("Error deleting pool: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/remove-user")
+    public ResponseEntity<?> removeUser(@RequestBody RemoveUser object) {
+        try {
+
+            int rowsAffected = poolService.removeUserFromPool(object.getPoolid(), object.getUserid());
+            if (rowsAffected > 0) {
+                return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error deleting user: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
