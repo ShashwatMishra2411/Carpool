@@ -17,6 +17,7 @@ public class UserRowMapper implements RowMapper<User> {
         user.setName(rs.getString("name"));
         user.setEmail(rs.getString("email"));
         user.setGender(rs.getString("gender"));
+        user.setJoined(0l);
         // Retrieve the SQL Array from the ResultSet
         Array sqlArray = rs.getArray("createdPools");
         if (sqlArray != null) {
