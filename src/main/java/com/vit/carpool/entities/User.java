@@ -27,6 +27,8 @@ public class User {
     @Column(name = "gender", nullable = false)
     String gender;
 
+    long joinedpool;
+
     public String getRegistrationNumber() {
         return registrationNumber;
     }
@@ -66,5 +68,13 @@ public class User {
 
     public void setCreatedPools(ArrayList<Long> createdPools) {
         this.createdPools = createdPools;
+    }
+
+    public long getJoined() {
+        return joinedpool;
+    }
+
+    public void setJoined(Long id) {
+        this.joinedpool = id;
     }
 }
