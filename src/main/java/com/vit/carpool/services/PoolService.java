@@ -164,38 +164,39 @@ public class PoolService {
     @Transactional
     public int deletePool(long poolID) {
         try {
-            String query = "DELETE FROM pool cascade WHERE poolID = :poolID";
-            MapSqlParameterSource params = new MapSqlParameterSource().addValue("poolID", poolID);
-            return namedParameterJdbcTemplate.update(query, params);
+            // Remove poolID from createdpools in users table
+            String updateUsersQuery = "UPDATE users " +
+                    "SET createdpools = array_remove(createdpools, :poolID) " +
+                    "WHERE :poolID = ANY(createdpools)";
+            MapSqlParameterSource updateParams = new MapSqlParameterSource().addValue("poolID", poolID);
+            namedParameterJdbcTemplate.update(updateUsersQuery, updateParams);
+
+            // Delete the pool
+            String deletePoolQuery = "DELETE FROM pool WHERE poolID = :poolID";
+            return namedParameterJdbcTemplate.update(deletePoolQuery, updateParams);
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete pool with ID " + poolID + ": " + e.getMessage());
         }
     }
 
-    // Custom RowMapper for Combined entity
-    // private static class CombinedRowMapper implements RowMapper<Combined> {
-    // @Override
-    // public Combined mapRow(ResultSet rs, int rowNum) throws SQLException {
-    // Combined combined = new Combined();
-    // combined.setPoolID(rs.getLong("poolID"));
-    // combined.setSource(rs.getString("source"));
-    // combined.setDestination(rs.getString("destination"));
-    // combined.setDate(rs.getDate("date").toLocalDate());
-    // combined.setTime(rs.getTime("time").toLocalTime());
-    // combined.setMaxUsers(rs.getInt("max_users"));
-    // combined.setFill(rs.getInt("fill"));
-    // combined.setCreatorID(rs.getString("creatorID"));
+    @Transactional
+    public int removeUserFromPool(long poolId, String userId) {
+        try {
+            System.out.println(poolId + " " + userId);
+            String query = "UPDATE pool " +
+                    "SET users = array_remove(users, :userId), fill = fill - 1 " +
+                    "WHERE poolid = :poolId AND :userId = ANY(users)";
+            MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("userId", userId)
+                    .addValue("poolId", poolId);
 
-    // // Handle conversion from PgArray to String[]
-    // Array usersArray = rs.getArray("users");
-    // if (usersArray != null) {
-    // combined.setUsers((String[]) usersArray.getArray());
-    // } else {
-    // combined.setUsers(new String[0]);
-    // }
-
-    // combined.setCreatorName(rs.getString("creator_name"));
-    // return combined;
-    // }
-    // }
+            int rowsAffected = namedParameterJdbcTemplate.update(query, params);
+            if (rowsAffected == 0) {
+                throw new RuntimeException("User not found in the pool or invalid pool ID.");
+            }
+            return rowsAffected;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to remove user from pool: " + e.getMessage());
+        }
+    }
 }
